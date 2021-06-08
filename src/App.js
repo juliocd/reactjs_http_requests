@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 
 import MoviesList from './components/MoviesList';
 import './App.css';
@@ -8,11 +8,12 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchMoviesHandler();
-  }, []); // It runs only the fisrt time whe the component is render
+  // Due to the function fetchMoviesHandler constains elements that might change
+  // when the whole container change (because it's a child), to solve it whe can use the
+  // hook Callback to avoid it. This way the function only will be called when something 
+  // into the funcion changes.
 
-  async function fetchMoviesHandler() {
+  const fetchMoviesHandler = useCallback(async () => {
     setIsLoading(true);
 
     try{
@@ -33,7 +34,11 @@ function App() {
       setError('There was an error. Please, try later.')
     }
     setIsLoading(false);
-  }
+  });
+
+  useEffect(() => {
+    fetchMoviesHandler();
+  }, []); 
 
   let content = <p>Found not movies.</p>;
   if(movies.length > 0){
